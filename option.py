@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.stats import norm
+
 class EuropeanOption:
     """
     Represents a European option (call or put) that is priced under 
@@ -27,3 +30,18 @@ class EuropeanOption:
     def __repr__(self):
         return (f"EuropeanOption(S={self.S}, K={self.K}, T={self.T}, "
                 f"r={self.r}, sigma={self.sigma}, type='{self.option_type}')")
+
+    def black_scholes_price(self):
+        d1 = (np.log(self.S / self.K) + (self.r + ((self.sigma) ** 2) / 2) * self.T) / ((self.sigma) * np.sqrt(self.T))
+        d2 = d1 - self.sigma * np.sqrt(self.T)
+
+        if self.option_type == 'call':
+            price = self.S * norm.cdf(d1) - self.K * np.exp(-self.r * self.T) * norm.cdf(d2)
+        else:
+            price = self.K * np.exp(-self.r * self.T) * norm.cdf(-d2) - self.S * norm.cdf(-d1)
+        
+        return price
+
+# test
+opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
+print(opt.black_scholes_price())
