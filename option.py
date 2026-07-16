@@ -32,7 +32,7 @@ class EuropeanOption:
                 f"r={self.r}, sigma={self.sigma}, type='{self.option_type}')")
 
     def black_scholes_price(self):
-        d1 = (np.log(self.S / self.K) + (self.r + ((self.sigma) ** 2) / 2) * self.T) / ((self.sigma) * np.sqrt(self.T))
+        d1 = (np.log(self.S / self.K) + (self.r + ((self.sigma)**2) / 2) * self.T) / ((self.sigma) * np.sqrt(self.T))
         d2 = d1 - self.sigma * np.sqrt(self.T)
 
         if self.option_type == 'call':
@@ -42,6 +42,13 @@ class EuropeanOption:
         
         return price
 
+    def simulate_terminal_prices(self, num_simulations):
+        Z = np.random.standard_normal(num_simulations)
+        S_T = self.S * np.exp((self.r - 0.5 * self.sigma**2) * self.T + self.sigma * np.sqrt(self.T) * Z)
+        return S_T
+
 # test
 opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-print(opt.black_scholes_price())
+prices = opt.simulate_terminal_prices(1000)
+print(prices.mean())
+print(prices.min(), prices.max())
