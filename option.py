@@ -47,8 +47,22 @@ class EuropeanOption:
         S_T = self.S * np.exp((self.r - 0.5 * self.sigma**2) * self.T + self.sigma * np.sqrt(self.T) * Z)
         return S_T
 
+    def monte_carlo_price(self, num_simulations):
+        S_T = self.simulate_terminal_prices(num_simulations)
+
+        if self.option_type == 'call':
+            payoffs = np.maximum(S_T - self.K, 0)
+        else:
+            payoffs = np.maximum(self.K - S_T, 0)
+        
+        discounted_price = np.exp(-self.r * self.T) * payoffs.mean()
+        return discounted_price
+
 # test
 opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-prices = opt.simulate_terminal_prices(1000)
-print(prices.mean())
-print(prices.min(), prices.max())
+print("Black-Scholes:", opt.black_scholes_price())
+print("Monte Carlo:", opt.monte_carlo_price(100000))
+
+opt_put = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='put')
+print("Black-Scholes put:", opt_put.black_scholes_price())
+print("Monte Carlo put:", opt_put.monte_carlo_price(100000))
