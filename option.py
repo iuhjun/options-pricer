@@ -31,9 +31,15 @@ class EuropeanOption:
         return (f"EuropeanOption(S={self.S}, K={self.K}, T={self.T}, "
                 f"r={self.r}, sigma={self.sigma}, type='{self.option_type}')")
 
+    def d1(self):
+        return (np.log(self.S / self.K) + (self.r + ((self.sigma)**2) / 2) * self.T) / ((self.sigma) * np.sqrt(self.T))
+
+    def d2(self):
+        return self.d1() - self.sigma * np.sqrt(self.T)
+
     def black_scholes_price(self):
-        d1 = (np.log(self.S / self.K) + (self.r + ((self.sigma)**2) / 2) * self.T) / ((self.sigma) * np.sqrt(self.T))
-        d2 = d1 - self.sigma * np.sqrt(self.T)
+        d1 = self.d1()
+        d2 = self.d2()
 
         if self.option_type == 'call':
             price = self.S * norm.cdf(d1) - self.K * np.exp(-self.r * self.T) * norm.cdf(d2)
@@ -58,11 +64,26 @@ class EuropeanOption:
         discounted_price = np.exp(-self.r * self.T) * payoffs.mean()
         return discounted_price
 
+    def delta(self):
+        d1 = self.d1()
+        if self.option_type == 'call':
+            return norm.cdf(d1)
+        else:
+            return norm.cdf(d1) - 1
+
+    def gamma(self):
+        d1 = self.d1()
+        return norm.pdf(d1) / (self.S * self.sigma * np.sqrt(self.T))
+
+    def vega(self):
+        d1 = self.d1()
+        return self.S * norm.pdf(d1) * np.sqrt(self.T)
+
 # test
-opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-print("Black-Scholes:", opt.black_scholes_price())
-print("Monte Carlo:", opt.monte_carlo_price(100000))
+opt_call = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
+print("Delta:", opt_call.delta())
+print("Gamma:", opt_call.gamma())
+print("Vega:", opt_call.vega())
 
 opt_put = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='put')
-print("Black-Scholes put:", opt_put.black_scholes_price())
-print("Monte Carlo put:", opt_put.monte_carlo_price(100000))
+print("Delta:", opt_put.delta())
