@@ -78,12 +78,30 @@ class EuropeanOption:
     def vega(self):
         d1 = self.d1()
         return self.S * norm.pdf(d1) * np.sqrt(self.T)
+    
+    def delta_fd(self, h=0.01):
+        option_up = EuropeanOption(self.S + h, self.K, self.T, self.r, self.sigma, self.option_type)
+        option_down = EuropeanOption(self.S - h, self.K, self.T, self.r, self.sigma, self.option_type)
+        return (option_up.black_scholes_price() - option_down.black_scholes_price()) / (2 * h)
+
+    def gamma_fd(self, h=0.01):
+        option_up = EuropeanOption(self.S + h, self.K, self.T, self.r, self.sigma, self.option_type)
+        option_down = EuropeanOption(self.S - h, self.K, self.T, self.r, self.sigma, self.option_type)
+        return (option_up.black_scholes_price() - 2 * self.black_scholes_price() + option_down.black_scholes_price()) / (h ** 2)
+
+    def vega_fd(self, h=0.01):
+        option_up = EuropeanOption(self.S, self.K, self.T, self.r, self.sigma + h, self.option_type)
+        option_down = EuropeanOption(self.S, self.K, self.T, self.r, self.sigma - h, self.option_type)
+        return (option_up.black_scholes_price() - option_down.black_scholes_price()) / (2 * h)
 
 # test
-opt_call = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-print("Delta:", opt_call.delta())
-print("Gamma:", opt_call.gamma())
-print("Vega:", opt_call.vega())
+opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
 
-opt_put = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='put')
-print("Delta:", opt_put.delta())
+print("Delta (analytical):", opt.delta())
+print("Delta (finite diff):", opt.delta_fd())
+
+print("Gamma (analytical):", opt.gamma())
+print("Gamma (finite diff):", opt.gamma_fd())
+
+print("Vega (analytical):", opt.vega())
+print("Vega (finite diff):", opt.vega_fd())
