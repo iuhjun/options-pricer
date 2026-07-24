@@ -31,3 +31,21 @@ def test_short_maturity_price():
     price = opt.black_scholes_price()
     intrinsic = max(opt.S - opt.K, 0)
     assert abs(price - intrinsic) < 0.5
+
+def test_put_call_parity():
+    call = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call').black_scholes_price()
+    put = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='put').black_scholes_price()
+    parity_rhs = 100 - 100 * np.exp(-0.05 * 1)
+    assert abs((call - put) - parity_rhs) < 0.01
+
+def test_delta_matches_fd():
+    opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
+    assert abs(opt.delta() - opt.delta_fd()) < 0.001
+
+def test_gamma_matches_fd():
+    opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
+    assert abs(opt.gamma() - opt.gamma_fd()) < 0.001
+
+def test_vega_matches_fd():
+    opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
+    assert abs(opt.vega() - opt.vega_fd()) < 0.01

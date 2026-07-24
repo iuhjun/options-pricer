@@ -11,10 +11,10 @@ Greeks analytically and using finite differences.
 - **Monte Carlo pricing** — simulates terminal stock prices via geometric
   Brownian motion under the risk-neutral measure and prices options as the
   discounted average payoff
-- **Convergence analysis** — demonstrates Monte Carlo price converging to the
-  Black-Scholes price as simulation count increases
-- **Greeks** — delta, gamma and vega, computed analytically and finite differences, 
-  cross-validated against each other
+- **Convergence analysis** — illustrates that Monte Carlo price converges to the
+  Black-Scholes price as the simulation count increases
+- **Greeks** — delta, gamma and vega are computed analytically and using finite 
+  differences, cross-validated against each other
 - **Tested** — validated against known values, edge-case behaviour (deep 
   in/out-of-the-money, short maturities) and put-call parity
 
@@ -35,7 +35,7 @@ than cash.
  
 **Monte Carlo pricing** uses a different route to the same theoretical
 quantity, by simulating many possible terminal stock prices and computes
-the option's payoff under each one, then taking the average, then discounts 
+the option's payoff under each one, then takes the average, then discounts 
 the result back to today. As the number of simulations increases, this 
 estimate converges to the Black-Scholes price, due to the Law of Large Numbers.
  
@@ -44,7 +44,7 @@ respect to its inputs i.e. delta (`∂Price/∂S`), gamma (`∂Delta/∂S`) and 
 (`∂Price/∂σ`). We computed them in two independent ways, analytically,
 using their closed-form Black-Scholes expressions and numerically, using
 finite differences (where we bumped an input slightly and measured the resulting
-change in price). The two methods agree closely, which validates that both are 
+change in price). The two methods agree closely so this validates that both are 
 implemented correctly.
  
 ## Setup
@@ -62,14 +62,14 @@ from option import EuropeanOption
  
 opt = EuropeanOption(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
  
-opt.black_scholes_price()      # closed-form price
+opt.black_scholes_price()  # closed-form price
 opt.monte_carlo_price(100000)  # simulation-based price
  
-opt.delta()                    # analytical Greeks
+opt.delta()  # analytical Greeks
 opt.gamma()
 opt.vega()
  
-opt.delta_fd()                 # finite-difference Greeks
+opt.delta_fd()  # finite-difference Greeks
 opt.gamma_fd()
 opt.vega_fd()
 ```
@@ -101,7 +101,7 @@ pytest
 ```
  
 Covers: at-the-money pricing against known values, deep in/out-of-the-money
-and short-maturity edge cases, put-call parity, and agreement between
+and short-maturity edge cases, put-call parity and agreement between
 analytical and finite-difference Greeks.
  
 ## What I learned
@@ -109,8 +109,8 @@ analytical and finite-difference Greeks.
 Building both a closed-form and simulation-based options pricer side by side 
 was a useful way to see the same theoretical result obtained through two 
 different routes, where one is exact and one is statistical. Implementing
-finite-difference Greeks alongside the analytical versions also presented to
-me a numerical methods lesson, as gamma's finite-difference approximation
-becomes unstable at very small step sizes, because dividing by `h²` amplifies
-tiny floating-point errors, hence we see that smaller step size is not
-always more accurate in numerical computation.
+finite-difference Greeks alongside the analytical versions also taught me a 
+numerical methods lesson, as gamma's finite-difference approximation becomes 
+unstable at very small step sizes, because dividing by `h²` amplifies tiny 
+floating-point errors, hence we see that smaller step size is not always more 
+accurate in numerical computation.
